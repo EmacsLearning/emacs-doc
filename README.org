@@ -41,3 +41,22 @@ emacs是上古神器，但是对于初学者来说，简陋的长相、复杂的
 3. [[https://segmentfault.com/a/1190000007689158][大家都是怎么入emacs坑的]]
 4. [[https://emacs-china.org/t/topic/61][大家都用emacs做什么]]
 5. [[https://yiming.dev/blog/2018/01/22/compare-doom-emacs-spacemacs-vanilla-emacs/][Compare Doom-emacs,Spacemacs, and vanilla Emacs]]
+6. [[https://segmentfault.com/a/1190000041310748][来用Emacs吧]]
+7. [[https://www.youtube.com/watch?v=Rx3wRl5d-J0][projectile & treemacs]]
+8. https://github.com/bbatsov/projectile
+9. https://www.iteedu.com/blog/tools/emacs/org-mode/tag/
+10. https://static.wanglianghome.org/org/programming/etags.html
+11. [[https://liujiacai.net/blog/2021/05/05/emacs-package/#headline-1][emacs package-managing tutorial]]
+12. [[http://tintingoo.com/cn/2022/02/doom-emacs-shortcuts-org/][emacs中的快捷键绑定]]
+13. https://www.codeplayer.org/Wiki/Emacs/doom-guide.html
+
+
+
+
+
+** tips
+*** 给某一行加入一个tab方便跳转
+*** 在org文件中引用代码，直接跳转到代码，最好可以直接跳到指定行
+*** 跳到上一次光标坐在位置
+*** 统计emacs各个快捷键的使用次数
+*** 弄好gist
