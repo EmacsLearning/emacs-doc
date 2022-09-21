@@ -30,6 +30,8 @@ emacs是上古神器，但是对于初学者来说，简陋的长相、复杂的
 *** Youtube
 1. https://www.youtube.com/c/DistroTube
 2. https://www.youtube.com/c/SystemCrafters
+   1. [[https://www.youtube.com/watch?v=74zOY-vgkyw&list=PLEoMzSkcN8oPH1au7H6B7bBJ4ZO7BXjSZ&index=1][Emacs From Scratch Video]]
+   2. [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch Document]]
 3. https://www.youtube.com/c/ProtesilaosStavrou
 *** bilibili
 1. [[https://space.bilibili.com/292659700/?spm_id_from=333.999.0.0][子龙山人]]
@@ -49,14 +51,27 @@ emacs是上古神器，但是对于初学者来说，简陋的长相、复杂的
 11. [[https://liujiacai.net/blog/2021/05/05/emacs-package/#headline-1][emacs package-managing tutorial]]
 12. [[http://tintingoo.com/cn/2022/02/doom-emacs-shortcuts-org/][emacs中的快捷键绑定]]
 13. https://www.codeplayer.org/Wiki/Emacs/doom-guide.html
-
-
-
-
+14. https://www.gnu.org/software/emacs/manual/html_node/emacs/Hooks.html
+15. [[https://emacs-china.org/t/topic/18908][写个就做提醒]]
+16. [[https://blog.ginshio.org/2022/doom_emacs_configuration/#%E5%BC%95%E8%A8%80][Doom Emacs 配置]]
 
 ** tips
 *** 给某一行加入一个tab方便跳转
 *** 在org文件中引用代码，直接跳转到代码，最好可以直接跳到指定行
-*** 跳到上一次光标坐在位置
+*** 跳到上一次光标所在位置
+**** 调研
+1. 使用hook
+   1. mark
+   2. bookmark
+   3. point-to-register
+2. 直接改建
 *** 统计emacs各个快捷键的使用次数
 *** 弄好gist
+*** bookmark 更改左侧栏图标颜色和样式
+1. left fringe
+2. https://emacsredux.com/blog/2015/01/18/customizing-the-fringes/
+3. http://xahlee.info/emacs/emacs/elisp_define_face.html
+4. 找到bookmark-set源码，然后一点一点往下看，就会看到
+5. list-faces-display 可以看faces属性
+6. boomark-set -> bookmark-set-internal -> bookmark--set-fringe-mark -> bookmark-face
+   可以修改bookmark，也可以直接换别的已有的face
