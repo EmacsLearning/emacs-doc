@@ -1,0 +1,12 @@
+#+title:Emacs lsp
+
+* 起源
+一开始的目的仅仅是想实现c语言定义跳转功能，然后使用lsp，但是发现了很多问题，于是想研究下lsp的原理，然后解决问题。
+* 问题
+1. 头文件跳转失败
+   #+begin_src c
+#include<stdio.h>
+   #+end_src
+   使用gd进行跳转显示: == Couldn't find the definition of "stdio" ==
+
+2. hello

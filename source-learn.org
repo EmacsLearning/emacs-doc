@@ -1,0 +1,155 @@
+#+title: Source Learn
+
+** git
+#+begin_src elisp
+;; 在gitee仓库中打开代码 <SPC> g o o
+;; 报错类似：Origin repo parsing failed2: %s %s %s %s (%s为任意字符串)
+;;
+;;1 ~/.emacs.d/modules/emacs/vc/autoload/vc.el
+;;直接看到browse-at-remote 这个函数
+(defun +vc/browse-at-remote (&optional arg)
+  "Open URL to current file (and line if selection is active) in browser.
+If prefix ARG, negate the default value of `browse-at-remote-prefer-symbolic'."
+  (interactive "P")
+  (require 'browse-at-remote)
+  (let ((vc-ignore-dir-regexp locate-dominating-stop-dir-regexp)
+        (browse-at-remote-prefer-symbolic
+         (if arg
+             (not browse-at-remote-prefer-symbolic)
+           browse-at-remote-prefer-symbolic)))
+    (browse-at-remote)))
+
+;;2 ~/.emacs.d/.local/straight/repos/browse-at-remote/browse-at-remote.el
+;;主要看browse-at-rmote-get-url, 看看为什么url生成失败了
+(defun browse-at-remote ()
+  "Browse the current file with `browse-url'."
+  (interactive)
+  (browse-url (browse-at-remote-get-url)))
+
+;;3  条件语句：https://www.gnu.org/software/emacs/manual/html_node/elisp/Conditionals.html
+;;对于一般的普通文件，我们直接看最后两个条件就行了
+;;不管看哪个，都会进入browse-at-remote--file-url
+(defun browse-at-remote-get-url ()
+  "Main method, returns URL to browse."
+
+  (cond
+   ;; dired-mode
+   ((eq major-mode 'dired-mode)
+    (browse-at-remote--file-url (dired-current-directory)))
+
+   ;; magit-status-mode
+   ((eq major-mode 'magit-status-mode)
+    (browse-at-remote--file-url default-directory))
+
+   ;; magit-log-mode
+   ((or (eq major-mode 'magit-log-mode) (eq major-mode 'vc-annotate-mode))
+    (browse-at-remote--commit-url
+     (save-excursion
+       (save-restriction
+         (widen)
+         (goto-char (line-beginning-position))
+         (search-forward " ")
+         (buffer-substring-no-properties (line-beginning-position) (- (point) 1))))))
+
+   ;; magit-commit-mode and magit-revision-mode
+   ((or (eq major-mode 'magit-commit-mode) (eq major-mode 'magit-revision-mode))
+    (save-excursion
+      ;; Search for the SHA1 on the first line.
+      (goto-char (point-min))
+      (let* ((first-line
+              (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+             (commithash (cl-loop for word in (s-split " " first-line)
+                                  when (eq 40 (length word))
+                                  return word)))
+        (browse-at-remote--commit-url commithash))))
+
+   ;; log-view-mode
+   ((derived-mode-p 'log-view-mode)
+    (browse-at-remote--commit-url (cadr (log-view-current-entry))))
+
+   ;; 这个是在选定了一个区域，会生成一个开始节点和一个结束节点
+   ;; We're inside of file-attached buffer with active region
+   ((and buffer-file-name (use-region-p))
+    (let ((point-begin (min (region-beginning) (region-end)))
+          (point-end (max (region-beginning) (region-end))))
+      (browse-at-remote--file-url
+       buffer-file-name point-begin
+       (if (eq (char-before point-end) ?\n) (- point-end 1) point-end))))
+
+   ;;这个是在没有选区域时，就可能直接上传光标所在位置，也可能传个nil
+   ;; We're inside of file-attached buffer without region
+   (buffer-file-name
+    (let ((line (when browse-at-remote-add-line-number-if-no-region-selected (point))))
+      (browse-at-remote--file-url (buffer-file-name) line)))
+
+   (t (error "Sorry, I'm not sure what to do with this."))))
+
+
+;;4. 这就是形成链接的函数，关键函数就是url-formatter, 他会通过传进来的url和type形成一个函数名，然后用funcall调用，否则会报错
+;;然后直接看url-formatter就行啦，其余的也可以看看吧看看remote-type是怎么生成的
+(defun browse-at-remote--file-url (filename &optional start end)
+  "Return the URL to browse FILENAME from lines START to END. "
+  (let* ((remote-ref (browse-at-remote--remote-ref filename))
+         (remote (car remote-ref))
+         (ref (cdr remote-ref))
+         (relname (f-relative filename (f-expand (vc-git-root filename))))
+         (target-repo (browse-at-remote--get-url-from-remote remote))
+         (remote-type (browse-at-remote--get-remote-type target-repo))
+         (repo-url (cdr target-repo))
+         (url-formatter (browse-at-remote--get-formatter 'region-url remote-type))
+         (start-line (when start (line-number-at-pos start)))
+         (end-line (when end (line-number-at-pos end))))
+    (unless url-formatter
+      (error (format "Origin repo parsing failed: %s %s %s %s" repo-url url-formatter ref relname)))
+
+    (funcall url-formatter repo-url ref relname
+             (if start-line start-line)
+             (if (and end-line (not (equal start-line end-line))) end-line))))
+
+;;5 这里会返回一个函数，由前面的固定部分和后面的参数组成
+;;如果是gitee，会返回函数browse-at-remote--format-region-url-gitee
+;;已经存在browse-at-remote--format-region-url-as-github
+;;仿照github来写gitee就好了，主要有两个地方需要改
+(defun browse-at-remote--get-formatter (formatter-type remote-type)
+  "Get formatter function for given FORMATTER-TYPE (region-url or commit-url) and REMOTE-TYPE (github or bitbucket)"
+  (let ((formatter (intern (format "browse-at-remote--format-%s-as-%s" formatter-type remote-type))))
+    (if (fboundp formatter)
+        formatter nil)))
+
+
+
+;;file: ~/.emacs.d/.local/straight/repos/browse-at-remote/browse-at-remote.el
+;;第一个是我们自己需要添加的函数
+;;第二个我们需要添加一行关于gitee的远端仓库
+(defun browse-at-remote--format-region-url-as-gitee (repo-url location filename &optional linestart lineend)
+  "URL formatted for gitee."
+  (cond
+   ((and linestart lineend)
+    (format "%s/blob/%s/%s#L%d-%d" repo-url location filename linestart lineend))
+   (linestart (format "%s/blob/%s/%s#L%d" repo-url location filename linestart))
+   (t (format "%s/tree/%s/%s" repo-url location filename))))
+
+(defcustom browse-at-remote-remote-type-regexps
+  '(("^github\\.com$" . "github")
+    ("^gitee\\.com$" . "gitee")
+    ("^bitbucket\\.org$" ."bitbucket")
+    ("^gitlab\\.com$" . "gitlab")
+    ("^git\\.savannah\\.gnu\\.org$" . "gnu")
+    ("^gist\\.github\\.com$" . "gist")
+    ("^git\\.sr\\.ht$" . "sourcehut")
+    ("^.*\\.visualstudio\\.com$" . "ado")
+    ("^pagure\\.io$" . "pagure")
+    ("^.*\\.fedoraproject\\.org$" . "pagure")
+    ("^.*\\.googlesource\\.com$" . "gitiles"))
+  "Alist of domain regular expressions to remote types."
+
+  :type browse-at-remote--customize-remote-types
+  :group 'browse-at-remote)
+#+end_src
+** git更新后报错
+*** 学习总结
+**** emacs lisp 语法
+1. edebug 调试代码
+2. 文档查询
+3. 函数查询
+**** git获取远端仓库http链接的规则

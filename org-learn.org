@@ -1,4 +1,69 @@
 #+title: Org Learn
+* org-mode 文本编辑器
+** 用大纲组织内容
+*** 定义标题
+*** 大纲相关的快捷键
+*** 大纲的显示方式
+** 超链接和图文混排
+*** 创建链接
+*** 内部链接
+*** 显示图片
+** 轻量级标记语言
+*** 字体
+*** 表格
+*** 段落
+*** 列表
+*** 分割线
+** 标签
+*** tag的作用
+*** 标记tag
+*** 预定义tag
+*** 按tag搜索
+** 导出和发布
+*** 准备工作
+*** 导出
+*** 发布
+* [[http://holbrook.github.io/2012/04/14/emacs_orgmode_task.html][org-mode 任务管理利器]]
+** 定义任务和子任务
+Org-mode认为，每一个任务通常会需要附带一些文字说明。
+Org-mode把标题作为任务的载体。
+每个标题课通过 *C-c C-t* 或 *S-LEFT/RIGHT* 来为标题增加或改变任务标记
+** 定义任务状态
+** 设置任务优先级
+** 跟踪子任务完成情况
+** 用复选框标记非标题类型的子任务
+** 查询任务
+** 任务的时间计划
+*** 时间戳
+时间点:
+#+begin_src org
+<2022-10-16 Sun>
+<2022-10-16 Sun 18:00>
+<2022-10-16 Sun 18:00-19:00>
+#+end_src
 
-** 基本操作
-1.
+时间点+间隔: (d w m y)
+#+begin_src org
+<2022-10-16 Sun 18:00 +1w>
+#+end_src
+表示每周重复一次
+输入时间戳：
+- *C-c .* 插入时间戳
+- *C-c <* 快速插入时间戳
+- *C-c >* 查看日历
+*** 时间/日期段
+#+begin_src org
+<2022-10-16 Sun>---<2022-10-20 Thu>
+#+end_src
+1. *C-c C-y* 计算时间段的间隔
+*** 计划时间和截止时间
+1. *C-c C-s* (org-schedule) 计划时间
+2. *C-c C-d* (org-deadline) 截止时间
+** 全局任务文件清单
+- *C-c [ * 加入org-agenda-files
+- *C-c ] * 移除
+- [[file:~/.doom.d/custom.el][org-agenda-files定义文件]]
+* 阅读文献
+** TODO [[https://blog.csdn.net/u014801157/article/details/24372485][还比较详细]]
+** TODO [[https://zhuanlan.zhihu.com/p/143258279][时间管理简单易懂]]
+** TODO [[https://github.com/rougier/emacs-gtd#table-of-contents][emacs-gtd]]
